@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <style>
+        body{font-family:Arial,sans-serif;background:#f4f4f4;margin:0}
+        .container{max-width:600px;margin:40px auto;background:#fff;border-radius:12px;overflow:hidden}
+        .header{background:#6366f1;color:#fff;padding:28px;text-align:center}
+        .body{padding:32px;text-align:center}
+        .otp{font-size:48px;font-weight:900;letter-spacing:12px;color:#6366f1;margin:20px 0;padding:20px;background:#f8fafc;border-radius:12px;border:2px dashed #6366f1}
+        .expiry{color:#94a3b8;font-size:13px;margin-top:12px}
+        .warn{color:#ef4444;font-size:12px;margin-top:16px}
+        .footer{text-align:center;padding:20px;font-size:12px;color:#94a3b8}
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1 style="margin:0;font-size:22px">Your Login OTP</h1>
+    </div>
+    <div class="body">
+        <p>Use this OTP to login to your account:</p>
+        <div class="otp" th:text="${otp}">123456</div>
+        <p class="expiry">⏱️ Expires in 5 minutes</p>
+        <p class="warn">⚠️ Never share this OTP with anyone</p>
+    </div>
+    <div class="footer">&copy; 2026 My Ecommerce Store</div>
+</div>
+</body>
+</html>
