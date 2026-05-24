@@ -1,44 +1,26 @@
 package com.example.eccomerce_notification.controller;
 
+import com.resend.Resend;
+import com.resend.services.emails.model.CreateEmailOptions;
+import com.resend.services.emails.model.CreateEmailResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+@Slf4j
 @RestController
 @RequestMapping("/api/notification")
 @RequiredArgsConstructor
 public class HealthController {
-    @Autowired
-    private JavaMailSender mailSender;
+    @Value("${resend.api.key}")
+    private String resendApiKey;
 
-    @Value("${app.email.from}")
-    private String fromEmail;
-
-    @GetMapping("/test-email")
-    public ResponseEntity<?> testEmail() {
-        try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
-            message.setTo("czsubham@gmail.com");
-            message.setSubject("Test Email from Notification Service");
-            message.setText("Email is working!");
-            mailSender.send(message);
-            return ResponseEntity.ok(Map.of("message", "Email sent successfully ✅"));
-        } catch (Exception e) {
-            return ResponseEntity.status(500)
-                    .body(Map.of("error", e.getMessage()));
-        }
-    }
-
-    // ✅ Ping endpoint
     @GetMapping("/ping")
     public ResponseEntity<?> ping() {
         return ResponseEntity.ok(Map.of(
@@ -46,5 +28,31 @@ public class HealthController {
                 "service", "eccomerce-notification",
                 "timestamp", LocalDateTime.now().toString()
         ));
+    }
+
+    @GetMapping("/test-email")
+    public ResponseEntity<?> testEmail() {
+        try {
+            Resend resend = new Resend(resendApiKey);
+
+            CreateEmailOptions params = CreateEmailOptions.builder()
+                    .from("My Ecommerce Store <onboarding@resend.dev>")
+                    .to("czsubham@gmail.com")
+                    .subject("Test Email ✅")
+                    .html("<h1>Email is working!</h1><p>Resend is configured correctly.</p>")
+                    .build();
+
+            CreateEmailResponse response = resend.emails().send(params);
+            log.info("Test email sent: {}", response.getId());
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Email sent successfully ✅",
+                    "id", response.getId()
+            ));
+        } catch (Exception e) {
+            log.error("Test email failed: {}", e.getMessage());
+            return ResponseEntity.status(500)
+                    .body(Map.of("error", e.getMessage()));
+        }
     }
 }
